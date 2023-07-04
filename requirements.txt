@@ -1,3 +1,4 @@
 streamlit
 requests
 translate
+streamlit_chat
