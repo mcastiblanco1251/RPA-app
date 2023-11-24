@@ -3,3 +3,4 @@ requests
 translate
 streamlit_chat
 hugchat 
+gradio
