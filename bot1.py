@@ -3,13 +3,14 @@ import requests
 from translate import Translator
 from PIL import Image
 from streamlit_chat import message
-#from streamlit_extras.colored_header import colored_header
-#from streamlit_extras.add_vertical_space import add_vertical_space
+from streamlit_extras.colored_header import colored_header
+from streamlit_extras.add_vertical_space import add_vertical_space
 from hugchat import hugchat
+import gradio as gr
 
 im = Image.open("log.png")
 
-st.set_page_config(page_title='ChatBot', layout="wide", page_icon=im)
+st.set_page_config(page_title='SmartBot', layout="wide", page_icon=im)
 st.set_option('deprecation.showPyplotGlobalUse', False)
 
 # LAYING OUT THE TOP SECTION OF THE APP
@@ -23,10 +24,10 @@ with row1_1:
     st.markdown('Web App by [Manuel Castiblanco](http://ia.smartecorganic.com.co/index.php/contact/)')
 with row1_2:
     st.write("""
-    # ChatBot
-    Esta app ilustra chatbot!
+    # SmartEcoBot
+    Esta app podrás preguntarle a nuestro asistente virtual lo que te interese!
     """)
-    with st.expander("Contact us 👉"):
+    with st.expander("Contacto 👉"):
         with st.form(key='contact', clear_on_submit=True):
             name=st.text_input('Nombre')
             mail = st.text_input('Email')
@@ -54,43 +55,43 @@ st.header('Aplicación')
 st.write('_______________________________________________________________________________________________________')
 
 
-# Generate empty lists for bot_response and user_input.
-## bot_response stores AI generated responses
-if 'bot_response' not in st.session_state:
-    st.session_state['bot_response'] = ["Hola, SmartChat, Como Puedo Ayudarte?"]
-## user_input stores User's questions
-if 'user_input' not in st.session_state:
-    st.session_state['user_input'] = ['Hola!']
 
-# Layout of input/response containers
-input_container = st.container()
-#colored_header(label='', description='', color_name='blue-30')
-response_container = st.container()
-
-# User input
-## Function for taking user provided prompt as input
-def get_input():
-    input_text = st.text_input("Tu: ", "", key="input")
-    return input_text
-## Applying the user input box
-with input_container:
-    user_input = get_input()
-
-# Response output
-## Function for taking user prompt as input followed by producing AI generated responses
+# Función para generar respuestas del modelo
 def generate_response(prompt):
     chatbot = hugchat.ChatBot(cookie_path="cookies.json")
     response = chatbot.chat(prompt)
     return response
 
-## Conditional display of AI generated responses as a function of user provided prompts
-with response_container:
-    if user_input:
-        response = generate_response(user_input)
-        st.session_state.user_input.append(user_input)
-        st.session_state.bot_response.append(response)
+# Interfaz de Streamlit
+#st.title("Chatbot")
 
-    if st.session_state['bot_response']:
-        for i in range(len(st.session_state['bot_response'])):
-            message(st.session_state['user_input'][i], is_user=True, key=str(i) + '_user')
-            message(st.session_state['bot_response'][i], key=str(i))
+# Initialize chat history
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+
+# Display chat messages from history on app rerun
+for message in st.session_state.messages:
+    with st.chat_message(message["role"]):
+        st.markdown(message["content"])
+
+if prompt := st.chat_input("Qué quieres saber"):
+    # Display user message in chat message container
+    st.chat_message("user").markdown(prompt)
+    # Add user message to chat history
+    st.session_state.messages.append({"role": "user", "content": prompt})
+
+    response = generate_response(prompt)
+    # Display assistant response in chat message container
+    with st.chat_message("assistant"):
+        st.markdown(response)
+    # Add assistant response to chat history
+    st.session_state.messages.append({"role": "assistant", "content": response})
+
+
+
+
+#
+# prompt = st.chat_input("Qué quieres saber")
+# if prompt:
+#     response = generate_response(prompt)
+#     st.text_area("Respuesta del Chatbot:", response)
