@@ -11,7 +11,7 @@ import gradio as gr
 im = Image.open("log.png")
 
 st.set_page_config(page_title='SmartBot', layout="wide", page_icon=im)
-st.set_option('deprecation.showPyplotGlobalUse', False)
+#st.set_option('deprecation.showPyplotGlobalUse', False)
 
 # LAYING OUT THE TOP SECTION OF THE APP
 
